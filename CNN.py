@@ -63,7 +63,7 @@ class MusicNote_CNN():
         self.model.eval()
         with torch.no_grad():
             # test only one sample
-            data, label = next(iter(self.test_one_loader))
+            data, label = next(iter(self.test_loader))
             data, label = data.to(self.device), label.to(self.device)
             output = self.model(data)
             proba, predicted = torch.max(output, 1)
@@ -72,6 +72,7 @@ class MusicNote_CNN():
                 f"probabilities: {output}, predicted: {predicted}, actual: {label}"
             )
 
+            data, label = next(iter(self.test_one_loader))
             # 使用torchvision.transforms將Tensor轉換為PIL圖像
             transform = transforms.ToPILImage()
             image = transform(
@@ -97,12 +98,17 @@ class MusicNote_CNN():
 
 
 def main():
-    # musicNote_CNN = MusicNote_CNN()
-    musicNote_CNN = MusicNote_CNN(
-        weights='model_weight/CNN_model_PixelNotes.pt')
-    # musicNote_CNN.train(
-    #     save_weights='model_weight/CNN_model_PixelNotes.pt')
-    musicNote_CNN.test_one_case()
+    MODE = 2  # 1: train a new network, 2: test current network
+
+    match MODE:
+        case 1:
+            musicNote_CNN = MusicNote_CNN()
+            musicNote_CNN.train(
+                save_weights='model_weight/CNN_model_PixelNotes.pt')
+        case 2:
+            musicNote_CNN = MusicNote_CNN(
+                weights='model_weight/CNN_model_PixelNotes.pt')
+            musicNote_CNN.test_one_case()
 
 
 if __name__ == '__main__':
