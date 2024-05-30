@@ -100,12 +100,11 @@ class MusicNote_CNN():
 def main():
     MODE = 2  # 1: train a new network, 2: test current network
 
-    match MODE:
-        case 1:
+    if MODE == 1:
             musicNote_CNN = MusicNote_CNN()
             musicNote_CNN.train(
                 save_weights='model_weight/CNN_model_PixelNotes.pt')
-        case 2:
+    elif MODE == 2:
             musicNote_CNN = MusicNote_CNN(
                 weights='model_weight/CNN_model_PixelNotes.pt')
             musicNote_CNN.test_one_case()
