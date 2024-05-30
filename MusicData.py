@@ -47,8 +47,11 @@ transform = transforms.Compose([
 
 # loader 版本
 train_loader = DataLoader(MusicDataset('./dataset.csv', transform=transform),
-                          batch_size=1,
+                          batch_size=10,
                           shuffle=True)
 test_loader = DataLoader(MusicDataset('./data1.csv', transform=transform),
-                         batch_size=1,
+                         batch_size=10,
                          shuffle=True)
+test_one_loader = DataLoader(MusicDataset('./data1.csv'),
+                             batch_size=1,
+                             shuffle=True)

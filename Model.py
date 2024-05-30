@@ -20,6 +20,7 @@ class CNN(nn.Module):
         x = F.max_pool2d(x, 2, 2)
         x = F.relu(self.conv3(x))
         x = F.max_pool2d(x, 2, 2)
+        # x = torch.flatten(x)
         x = x.view(-1, 200 * 1 * 1)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))

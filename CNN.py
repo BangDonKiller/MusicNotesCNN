@@ -20,6 +20,7 @@ class MusicNote_CNN():
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.001)
         self.train_loader = MusicData.train_loader
         self.test_loader = MusicData.test_loader
+        self.test_one_loader = MusicData.test_one_loader
 
         if weights is not None:
             self.model.load_state_dict(torch.load(weights))
@@ -62,7 +63,7 @@ class MusicNote_CNN():
         self.model.eval()
         with torch.no_grad():
             # test only one sample
-            data, label = next(iter(self.train_loader))
+            data, label = next(iter(self.test_one_loader))
             data, label = data.to(self.device), label.to(self.device)
             output = self.model(data)
             proba, predicted = torch.max(output, 1)
@@ -74,12 +75,24 @@ class MusicNote_CNN():
             # 使用torchvision.transforms將Tensor轉換為PIL圖像
             transform = transforms.ToPILImage()
             image = transform(
-                torch.tensor(np.array(data.cpu()).reshape(1, 28, 28)))
+                torch.tensor(np.array(data.cpu()).reshape(1, 64, 64)))
             image = image.convert('L')
             image = ImageOps.invert(image)
 
-            # 顯示圖像
-            plt.imshow(image, cmap="gray")  # type: ignore
+            transform_2 = transforms.Compose([
+                transforms.ToPILImage(),
+                transforms.Resize((28, 28)),
+            ])
+            image2 = transform_2(
+                torch.tensor(np.array(data.cpu()).reshape(1, 64, 64)))
+            image2 = image2.convert('L')  # type: ignore
+            image2 = ImageOps.invert(image2)
+
+            fig, ax = plt.subplots(1, 2)
+            ax[0].imshow(image, cmap="gray")  # type: ignore
+            ax[0].set_title("original")
+            ax[1].imshow(image2, cmap="gray")  # type: ignore
+            ax[1].set_title("scaled")
             plt.show()
 
 
@@ -87,7 +100,8 @@ def main():
     # musicNote_CNN = MusicNote_CNN()
     musicNote_CNN = MusicNote_CNN(
         weights='model_weight/CNN_model_PixelNotes.pt')
-    # musicNote_CNN.train(save_weights='model_weight/CNN_model_PixelNotes.pt')
+    # musicNote_CNN.train(
+    #     save_weights='model_weight/CNN_model_PixelNotes.pt')
     musicNote_CNN.test_one_case()
 
 
