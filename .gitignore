@@ -2,3 +2,4 @@ datasets/datasets/Notes/
 .vscode/launch.json
 __pycache__/
 .vscode/settings.json
+model_weight/
