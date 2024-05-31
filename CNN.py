@@ -101,13 +101,13 @@ def main():
     MODE = 2  # 1: train a new network, 2: test current network
 
     if MODE == 1:
-            musicNote_CNN = MusicNote_CNN()
-            musicNote_CNN.train(
-                save_weights='model_weight/CNN_model_PixelNotes.pt')
+        musicNote_CNN = MusicNote_CNN()
+        musicNote_CNN.train(
+            save_weights='model_weight/CNN_model_PixelNotes.pt')
     elif MODE == 2:
-            musicNote_CNN = MusicNote_CNN(
-                weights='model_weight/CNN_model_PixelNotes.pt')
-            musicNote_CNN.test_one_case()
+        musicNote_CNN = MusicNote_CNN(
+            weights='model_weight/CNN_model_PixelNotes.pt')
+        musicNote_CNN.test_one_case()
 
 
 if __name__ == '__main__':
