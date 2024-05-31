@@ -2,7 +2,7 @@ import torch
 import torch.optim as optim
 import numpy as np
 import Model
-import MINST
+import MINST_oneshot
 from torchvision import transforms
 import matplotlib.pyplot as plt
 from PIL import ImageOps
@@ -28,9 +28,9 @@ class MINST_Siamese:
         self.criterion = torch.nn.BCELoss()
 
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.001)
-        self.train_loader = MINST.train_loader
-        self.test_loader = MINST.test_loader
-        self.test_one_loader = MINST.test_one_loader
+        self.train_loader = MINST_oneshot.train_loader
+        self.test_loader = MINST_oneshot.test_loader
+        self.test_one_loader = MINST_oneshot.test_one_loader
 
         assert pretrained_model is not None or load_weights is not None, "pretrained_weights or weights should be provided"
         if pretrained_model is not None:
@@ -48,7 +48,9 @@ class MINST_Siamese:
 
         print("Training using device: ", self.device)
 
-    def train(self, epochs=10, save_weights='model_weight/SNN_model_MINST.pt'):
+    def train(self,
+              epochs=1000,
+              save_weights='model_weight/SNN_model_MINST.pt'):
         for epoch in range(epochs):
             self.model.train()
             running_loss = 0.0
@@ -62,22 +64,25 @@ class MINST_Siamese:
                 loss.backward()
                 self.optimizer.step()
                 running_loss += loss.item()
-                if i % 100 == 99:
+                if i % 10 == 9:
                     print(f"Epoch: {epoch}, Loss: {running_loss / 100:.3f}")
                     running_loss = 0.0
 
-            self.model.eval()
-            with torch.no_grad():
-                correct = 0
-                total = 0
-                for (img0, img1), label in self.test_loader:
-                    img0, img1, label = img0.to(self.device), img1.to(
-                        self.device), label.to(self.device)
-                    output = self.model(img0, img1)
-                    proba = output > 0.5
-                    total += label.size(0)
-                    correct += (proba == label).sum().item()
-                print(f"Epoch: {epoch}, Accuracy: {100 * correct / total:.2f}")
+            if (epoch % 100 == 99):
+                self.model.eval()
+                with torch.no_grad():
+                    correct = 0
+                    total = 0
+                    for (img0, img1), label in self.test_loader:
+                        img0, img1, label = img0.to(self.device), img1.to(
+                            self.device), label.to(self.device)
+                        output = self.model(img0, img1)
+                        proba = output > 0.5
+                        total += label.size(0)
+                        correct += (proba == label).sum().item()
+                    print(
+                        f"Epoch: {epoch}, Accuracy: {100 * correct / total:.2f}"
+                    )
 
         torch.save(self.model.state_dict(), save_weights)
 
@@ -119,15 +124,16 @@ class MINST_Siamese:
 
 
 def main():
-    MODE = 2  # 1: train a new network, 2: test current network
+    MODE = 1  # 1: train a new network, 2: test current network
 
     if MODE == 1:
         minst_siamese = MINST_Siamese(
             pretrained_model='model_weight/CNN_model_PixelNotes.pt')
-        minst_siamese.train(save_weights='model_weight/SNN_model_MINST_all.pt')
+        minst_siamese.train(
+            save_weights='model_weight/SNN_model_MINST_oneshot.pt')
     elif MODE == 2:
         minst_siamese = MINST_Siamese(
-            load_weights='model_weight/SNN_model_MINST_all.pt')
+            load_weights='model_weight/SNN_model_MINST_oneshot.pt')
         minst_siamese.test_one_case()
 
 
