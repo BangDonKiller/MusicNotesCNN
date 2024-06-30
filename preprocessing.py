@@ -1,10 +1,10 @@
 import os 
 import music21 as m21
 import json
-from tensorflow import keras
+import keras
 import numpy as np
 
-KERN_DATASET_PATH = 'datasets/deutschl/test'
+KERN_DATASET_PATH = 'datasets/deutschl/erk'
 ACCEPTABLE_DURATIONS = [
     0.25, 0.5, 0.75, 1.0, 1.5, 2, 3, 4
 ]
@@ -23,7 +23,7 @@ def load_songs_in_kern(data_path):
     return songs
 
 def has_acceptable_durations(song, acceptable_durations):
-    for note in song.flat.notesAndRests:
+    for note in song.flatten().notesAndRests:
         if note.quarterLength not in acceptable_durations:
             return False
     return True
@@ -54,7 +54,7 @@ def encode_song(song, time_step=0.25):
     
     encoded_song = []
     
-    for event in song.flat.notesAndRests:
+    for event in song.flatten().notesAndRests:
         
         # handle notes
         if isinstance(event, m21.note.Note):
@@ -76,10 +76,10 @@ def encode_song(song, time_step=0.25):
     
     return encoded_song
                 
-def preprocessing(data_path):
+def preprocessing(dataset_path):
     # load the folk song
     print('Loading songs...')
-    songs = load_songs_in_kern(KERN_DATASET_PATH)
+    songs = load_songs_in_kern(dataset_path)
     print(f'Loaded {len(songs)} songs.')
     
     for i, song in enumerate(songs):
@@ -116,8 +116,8 @@ def create_single_file_dataset(dataset_path, file_dataset_path, sequence_length)
     songs = songs[:-1]
     
     # save string that contains all dataset
-    if not os.path.exists(os.path.split(file_dataset_path)[0]):
-        with open(file_dataset_path, "w") as f:
+    if not os.path.exists(file_dataset_path):
+        with open(file_dataset_path, "w+") as f:
             f.write(songs)
         
     return songs
@@ -134,7 +134,7 @@ def create_mapping(songs, mapping_path):
         mappings[symbol] = i
         
     # save vocabulary to a json file
-    if not os.path.exists(os.path.split(mapping_path)[0]):
+    if not os.path.exists(mapping_path):
         with open(mapping_path, "w") as f:
             json.dump(mappings, f, indent=4)
         
@@ -171,6 +171,7 @@ def generate_training_sequences(sequence_length):
     for i in range(num_sequences):
         inputs.append(int_songs[i:i+sequence_length])
         targets.append(int_songs[i+sequence_length])
+
     
     # one-hot encode the sequences
     # inputs shape: (num_sequences, sequence_length) -> (num_sequences, sequence_length, vocabulary_size)
