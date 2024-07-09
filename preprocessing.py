@@ -187,4 +187,3 @@ if __name__ == '__main__':
     songs = create_single_file_dataset(SAVE_DIR, SINGLE_FILE_DATASET, SEQUENCE_LENGTH)
     create_mapping(songs, MAPPING_PATH)
     inputs, targets = generate_training_sequences(SEQUENCE_LENGTH)
-    
