@@ -3,5 +3,7 @@ datasets/datasets/Notes/
 __pycache__/
 .vscode/settings.json
 model_weight/
-Dataset/
+./LSTM/encoded_dataset/
+./LSTM/dataset/
+./LSTM/model_weight/
 .venv/
